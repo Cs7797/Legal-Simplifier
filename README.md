@@ -1,13 +1,32 @@
 # Legal Simplifier
 
-Legal Simplifier turns a legal document into a plain-language summary, a clause review, and suggested next steps. Users can compare two documents, ask questions about a saved document, and download PDF reports. Use synthetic documents for the demo.
+Legal Simplifier helps you read a contract in two passes. Upload a document to get a plain-language summary, a clause-by-clause review, and suggested next steps. Then ask a specific question, such as “How much notice do I need to give before ending this lease?” Document chat searches the lease for relevant passages and returns the excerpts alongside the answer so you can check the wording yourself.
 
-## Stack
+You can also compare two documents, reopen a saved analysis, and download summary and risk reports as PDFs. Use a synthetic contract if you're trying the app as a demo.
 
-- React, Vite, Tailwind CSS, Axios, and PDF.js in the browser
-- Express, Multer, pdf-parse, Mammoth, and Tesseract.js on the server
-- Supabase Auth, PostgreSQL with pgvector, and private Supabase Storage
-- Groq Chat Completions using `openai/gpt-oss-120b` by default
+## How document chat uses RAG
+
+The initial review sends extracted text to Groq. Follow-up questions use **retrieval-augmented generation (RAG)** to bring passages from the selected document into the conversation.
+
+1. **Index the document when it's saved.** The server splits the text into passages, targeting 1,200 characters with 180 characters of overlap so a clause can carry across a boundary. It hashes the words in each passage into a normalized 256-dimensional vector and stores the text and vector together in PostgreSQL. These vectors represent word usage and can be computed locally. [Chunking](server/services/rag/chunkingService.js) · [Vector generation](server/services/rag/embeddingService.js)
+2. **Find passages for the question.** For the lease example, the server searches only chunks belonging to that user and document. With a direct PostgreSQL connection, it combines pgvector cosine similarity with English full-text search, then reranks candidates using word overlap, phrase matches, and legal terms. With only the Supabase API configured, it fetches the document's chunks and ranks them in the backend. [Retrieval](server/services/rag/postgresVectorStore.js) · [Reranking](server/services/rag/rerankingService.js)
+3. **Answer with the source in view.** The chat service takes up to five stored passages and includes them in the Groq prompt. The response carries the retrieved excerpts back to the client. If stored retrieval returns nothing and the browser supplied the original text, the server can select up to four passages from that text. [Chat implementation](server/services/aiService.js)
+
+## Project stack
+
+| Part | Implementation |
+| --- | --- |
+| Frontend | React and Vite for the browser app, Tailwind CSS for styling, Axios for API calls, and PDF.js for previews |
+| Backend | Node.js 24 and Express for the API, Multer for uploads |
+| Text extraction | pdf-parse for digital PDFs, Mammoth for DOCX, UTF-8 decoding for TXT, and Tesseract.js for English OCR on PNG and JPEG images |
+| Analysis and chat | Groq Chat Completions, using `openai/gpt-oss-120b` by default. The backend computes the risk score from clause assessments. |
+| Accounts and storage | Supabase Auth for sign-in, PostgreSQL with pgvector for analyses and searchable passages, and private Supabase Storage for original files |
+
+## Uploads, privacy, and limits
+
+The browser sends a Supabase access token to Express. Saved analyses include the extracted text and results. Original files stay in the private `legal-files` bucket and open through short-lived signed URLs. After a reload, the app fetches the 25 most recent saved documents. Chat stays in browser memory. Document text and chat excerpts are sent to Groq for processing.
+
+Uploads are limited to 10 MiB, PDFs to 100 pages, and analysis input to 60,000 characters. PDFs need a text layer. Image-only scans can be uploaded as PNG or JPEG for English OCR. If clause assessment is unavailable, the app shows the partial analysis and leaves the risk score blank. PDF exports support Western European characters and common punctuation. Other scripts remain readable in the browser.
 
 ## Run locally
 
@@ -22,19 +41,7 @@ You can also run `npm run dev` from `client` and `npm start` from `server` in se
 
 For a new Supabase project, apply [server/supabase/schema.sql](server/supabase/schema.sql) and then [001_secure_document_storage.sql](server/supabase/migrations/001_secure_document_storage.sql) in the SQL Editor. For an existing installation with the base schema, review and apply the security migration before deploying the backend. Back up the database and validate on staging first.
 
-The schema defines `app_users`, `document_analyses`, and `document_rag_chunks`. The migration enables row-level security, restricts application tables and chunk replacement to the server, adds a document/owner constraint for future writes, and creates or secures the private `legal-files` bucket. Existing chunk rows are not rewritten by the migration. Review any existing mismatched chunk ownership before validating the new constraint. Add the local and deployed frontend root URLs to the Supabase Auth redirect allowlist and set the production Site URL.
-
-## How it works
-
-The browser signs in through Supabase and sends a bearer token to Express. The API validates files and extracts text from digital PDFs, DOCX, UTF-8 TXT, and JPEG/PNG images. OCR supports English images. Scanned PDFs return an unsupported message. Files are limited to 10 MiB, PDFs to 100 pages, and analysis input to 60,000 characters.
-
-Groq receives text for language detection, summary, clause analysis, and review suggestions. If clause assessment is unavailable, the UI displays a partial result without a risk score. Summary and risk reports are available for download, and generated draft PDFs open in a preview. PDF exports support Western European characters and common punctuation. Other scripts remain readable in the browser.
-
-Saved analyses store source text and results in Supabase. Original files go to private Storage and are opened through short-lived signed URLs. In-session data and chat are kept in browser memory. The most recent 25 saved documents return from Supabase after a reload. On first use after upgrading, the app clears older browser-only history and chats. Document text or excerpts are sent to Groq during analysis and contextual chat. Review your providers' data handling before using sensitive documents.
-
-### Document chat and retrieval
-
-Initial analysis sends document text directly to Groq. Follow-up chat can retrieve excerpts from the current document. On save, the server splits text into overlapping chunks and stores 256-dimensional token-hash vectors in PostgreSQL. With an optional direct Postgres connection, retrieval combines pgvector cosine similarity and English full-text search. The Supabase API path retrieves stored chunks and ranks them locally. If stored retrieval yields no match, chat can search the text sent by the browser. The assistant returns the retrieved excerpts with its answer.
+The schema defines `app_users`, `document_analyses`, and `document_rag_chunks`. The migration enables row-level security, restricts application tables and chunk replacement to the server, adds a document/owner constraint for future writes, and creates or secures the private `legal-files` bucket. Existing chunk rows are not rewritten by the migration. Review any existing mismatched chunk ownership before validating the new constraint. Run the read-only [verification queries](server/supabase/verify.sql) to inspect the setup. Add the local and deployed frontend root URLs to the Supabase Auth redirect allowlist and set the production Site URL.
 
 ## Deployment
 
