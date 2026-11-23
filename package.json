@@ -1,0 +1,33 @@
+{
+  "name": "legal-simplifier",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Legal Document Simplifier - Transform complex legal documents into clear, understandable explanations",
+  "main": "server/server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
+    "server:dev": "cd server && npm run dev",
+    "client:dev": "cd client && npm run dev",
+    "build": "cd client && npm run build",
+    "start": "cd server && npm start",
+    "install:all": "npm ci && npm ci --prefix server && npm ci --prefix client"
+  },
+  "keywords": [
+    "legal",
+    "document",
+    "simplifier",
+    "ai",
+    "translation",
+    "accessibility"
+  ],
+  "author": "Legal Simplifier Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  },
+  "engines": {
+    "node": "24.x",
+    "npm": ">=10"
+  }
+}

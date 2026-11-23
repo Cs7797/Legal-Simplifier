@@ -1,0 +1,55 @@
+{
+  "installCommand": "npm ci && npm ci --prefix client && npm ci --prefix server --omit=dev",
+  "buildCommand": "npm run build",
+  "outputDirectory": "client/dist",
+  "rewrites": [
+    {
+      "source": "/upload",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/extract-text",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/simplify-text",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/compare-documents",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/translate",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/chat",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/download-report",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/save-analysis",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/health",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/rag/:path*",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/analyses/:path*",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

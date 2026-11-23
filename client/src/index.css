@@ -1,0 +1,216 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+    --app-bg: #f3f6fb;
+    --app-surface: rgba(255, 255, 255, 0.72);
+    --app-texture:
+      radial-gradient(circle at 12% 8%, rgba(14, 165, 233, 0.1), transparent 22%),
+      radial-gradient(circle at 86% 12%, rgba(79, 70, 229, 0.08), transparent 20%),
+      radial-gradient(circle at 60% 86%, rgba(148, 163, 184, 0.08), transparent 24%),
+      linear-gradient(180deg, #eef3f9 0%, #f8fafc 52%, #ffffff 100%);
+  }
+
+  .dark {
+    color-scheme: dark;
+    --app-bg: #0b0f19;
+    --app-surface: rgba(13, 17, 27, 0.7);
+    --app-texture:
+      radial-gradient(circle at 15% 10%, rgba(34, 211, 238, 0.14), transparent 24%),
+      radial-gradient(circle at 82% 14%, rgba(99, 102, 241, 0.16), transparent 22%),
+      radial-gradient(circle at 52% 82%, rgba(236, 72, 153, 0.12), transparent 18%),
+      linear-gradient(180deg, #060912 0%, #0b0f19 38%, #101828 72%, #0b1220 100%);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    min-height: 100%;
+    scroll-behavior: smooth;
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+
+  body {
+    @apply m-0 min-w-[320px] text-slate-950 antialiased transition-colors dark:text-slate-50;
+    min-height: 100%;
+    background: var(--app-bg);
+    font-family: Geist, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    letter-spacing: -0.01em;
+  }
+
+  a {
+    @apply text-inherit no-underline;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  input,
+  select,
+  textarea {
+    @apply transition duration-200 ease-in-out;
+  }
+
+  input:focus,
+  select:focus,
+  textarea:focus {
+    @apply border-cyan-400 outline-none ring-4 ring-cyan-500/15 dark:border-cyan-400;
+  }
+
+  ::selection {
+    background: rgba(34, 211, 238, 0.22);
+    color: inherit;
+  }
+}
+
+@layer utilities {
+  .app-background {
+    background: var(--app-texture);
+  }
+
+  .premium-grid {
+    background-image:
+      linear-gradient(rgba(15, 23, 42, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(15, 23, 42, 0.05) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(circle at center, black 45%, transparent 100%);
+  }
+
+  .dark .premium-grid {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  }
+
+  .shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shimmer::after {
+    animation: shimmer 1.6s ease-in-out infinite;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+    content: "";
+    inset: 0;
+    position: absolute;
+    transform: translateX(-100%);
+  }
+
+  .dark .shimmer::after {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+  }
+
+  .glass-chip {
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(20px);
+  }
+
+  .hero-shell {
+    background:
+      radial-gradient(circle at top left, rgba(34, 211, 238, 0.12), transparent 28%),
+      radial-gradient(circle at 85% 20%, rgba(99, 102, 241, 0.1), transparent 24%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(239, 246, 255, 0.9));
+    color: #0f172a;
+  }
+
+  .pipeline-node {
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(241, 245, 249, 0.92)),
+      rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(20px);
+  }
+
+  .dark .glass-chip {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .dark .hero-shell {
+    background:
+      linear-gradient(180deg, rgba(8, 15, 31, 0.95), rgba(7, 11, 23, 0.88)),
+      rgba(8, 15, 31, 0.92);
+    color: white;
+  }
+
+  .dark .pipeline-node {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03)),
+      rgba(11, 15, 25, 0.86);
+  }
+}
+
+@layer components {
+  .surface-panel {
+    @apply border bg-white/80 shadow-sm shadow-slate-900/5 backdrop-blur-2xl dark:border-white/10 dark:shadow-black/30;
+    border-color: rgba(148, 163, 184, 0.22);
+  }
+
+  .surface-panel-muted {
+    @apply border bg-white/65 backdrop-blur-xl dark:border-white/10;
+    border-color: rgba(148, 163, 184, 0.18);
+  }
+
+  .control-surface {
+    @apply border bg-white/90 text-slate-700 shadow-sm transition duration-200 ease-in-out dark:border-white/10 dark:bg-[#0b0f19] dark:text-slate-200;
+    border-color: rgba(148, 163, 184, 0.28);
+  }
+
+  .dark .surface-panel {
+    background-color: rgba(9, 13, 24, 0.76);
+  }
+
+  .dark .surface-panel-muted {
+    background-color: rgba(17, 24, 39, 0.7);
+  }
+
+  .dark .dark\:bg-white\/10 {
+    background-color: rgba(11, 15, 25, 0.76) !important;
+  }
+
+  .dark .dark\:bg-white\/5 {
+    background-color: rgba(11, 15, 25, 0.5) !important;
+  }
+
+  .dark .dark\:bg-slate-950 {
+    background-color: #080d16 !important;
+  }
+
+  .dark .dark\:bg-slate-900 {
+    background-color: #111827 !important;
+  }
+
+  .dark .dark\:bg-slate-800 {
+    background-color: #172033 !important;
+  }
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes feature-scroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}

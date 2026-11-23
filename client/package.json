@@ -1,0 +1,39 @@
+{
+  "name": "legal-simplifier-frontend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.119.2",
+    "axios": "^1.21.1",
+    "framer-motion": "^12.38.0",
+    "pdfjs-dist": "^6.5.438",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-markdown": "^10.1.0",
+    "rehype-highlight": "^7.0.2",
+    "remark-gfm": "^4.0.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.7",
+    "@vitejs/plugin-react": "^6.3.0",
+    "autoprefixer": "^10.4.14",
+    "postcss": "^8.4.27",
+    "tailwindcss": "^3.3.3",
+    "vite": "^8.3.8"
+  },
+  "engines": {
+    "node": "24.x"
+  },
+  "overrides": {
+    "sucrase": {
+      "glob": "^14.0.2"
+    }
+  }
+}
