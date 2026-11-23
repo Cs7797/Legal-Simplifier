@@ -1,9 +1,25 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
+import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { chatWithAssistant } from '../services/api';
 import { getChatThread, getHistoryOwner, saveChatThread } from '../utils/historyStorage';
 import Button from './ui/Button';
 import GlassCard from './ui/GlassCard';
+
+// Model-generated tables sometimes use HTML breaks inside a cell.
+function remarkLineBreaks() {
+  function visit(node) {
+    if (node.type === 'html' && /^<br\s*\/?\s*>$/i.test(node.value)) {
+      node.type = 'break';
+      delete node.value;
+    }
+    node.children?.forEach(visit);
+  }
+  return visit;
+}
+
+const chatMarkdownPlugins = [remarkGfm, remarkLineBreaks];
 
 function getInitialAssistantMessage(activeDocument) {
   if (activeDocument) {
@@ -115,7 +131,15 @@ function ContextChatPanel({ activeDocument, threadId, starters = [] }) {
             <div className={`mb-1 text-xs font-semibold uppercase tracking-[0.14em] ${message.role === 'user' ? 'text-indigo-100' : 'text-slate-400'}`}>
               {message.role === 'user' ? 'You' : ''}
             </div>
-            <p className="whitespace-pre-wrap">{message.content}</p>
+            {message.role === 'assistant' ? (
+              <div className="chat-markdown">
+                <Markdown remarkPlugins={chatMarkdownPlugins} skipHtml disallowedElements={['img']}>
+                  {message.content}
+                </Markdown>
+              </div>
+            ) : (
+              <p className="whitespace-pre-wrap">{message.content}</p>
+            )}
             {message.role === 'assistant' && Array.isArray(message.sources) && message.sources.length > 0 && (
               <div className="mt-3 space-y-2 border-t border-slate-200 pt-3 dark:border-slate-800">
               </div>

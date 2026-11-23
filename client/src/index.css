@@ -2,6 +2,36 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  .chat-markdown {
+    @apply overflow-x-auto break-words;
+  }
+  .chat-markdown > * + * {
+    @apply mt-3;
+  }
+  .chat-markdown :is(h1, h2, h3, h4, h5, h6) {
+    @apply text-base font-semibold;
+  }
+  .chat-markdown ul {
+    @apply list-disc pl-6;
+  }
+  .chat-markdown ol {
+    @apply list-decimal pl-6;
+  }
+  .chat-markdown table {
+    @apply w-full border-collapse text-left;
+  }
+  .chat-markdown :is(th, td) {
+    @apply min-w-32 border border-slate-200 px-3 py-2 align-top dark:border-slate-700;
+  }
+  .chat-markdown th {
+    @apply bg-slate-50 font-semibold dark:bg-slate-900;
+  }
+  .chat-markdown a {
+    @apply underline;
+  }
+}
+
 @layer base {
   :root {
     color-scheme: light;
